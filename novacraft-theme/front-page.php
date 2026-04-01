@@ -13,7 +13,11 @@ get_header(); ?>
     $h_bg = function_exists('get_field') ? get_field('h_bg') : false;
     $h_bg = $h_bg ?: get_template_directory_uri() . '/img/kitchen_wood_autumn.jpg';
     
-    $get_f = function($k, $d) { return (function_exists('get_field') && get_field($k)) ? get_field($k) : $d; };
+    $get_f = function($k, $d) { 
+        if (function_exists('get_field') && get_field($k)) return get_field($k);
+        $val = get_post_meta(get_the_ID(), $k, true);
+        return $val ? $val : $d;
+    };
 
     $h_badge = $get_f('h_badge', 'Собственное производство');
     $h_title = $get_f('h_title', 'Мебель на заказ<br>с душой и <span>характером</span>');

@@ -2,7 +2,7 @@ $user = 'artemc9o'
 $pass = '\y<*9_x1ND]"~{F&'
 $creds = New-Object System.Net.NetworkCredential($user, $pass)
 
-$files = @("front-page.php", "functions.php", "style.css", "script.js", "header.php", "footer.php", "template-parts/contact-section.php")
+$files = @("front-page.php", "functions.php", "style.css", "script.js", "header.php", "footer.php", "template-parts/contact-section.php", "inc/home-meta.php")
 $localPath = "c:\Users\user\Documents\Projects\Novacraft\novacraft-theme\"
 
 # Create directory first

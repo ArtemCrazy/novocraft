@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Круглый пузырь (контур) -->
+  <circle cx="12" cy="10.5" r="7"/>
+  <!-- Хвостик внизу слева (заливка + обводка для читаемости) -->
+  <path d="M8 16.5 L7 21 L11 17 Z" fill="#000" stroke="none"/>
+</svg>

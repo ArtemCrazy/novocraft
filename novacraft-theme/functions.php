@@ -108,7 +108,7 @@ function novacraft_contacts() {
 
 // ====== NATIVE THEME OPTIONS PAGE ======
 function nc_add_theme_menu_item() {
-    add_menu_page('Настройки сайта', 'Настройки сайта', 'manage_options', 'nc-theme-options', 'nc_theme_settings_page', 'dashicons-admin-generic', 60);
+    add_menu_page('Настройки сайта', 'Настройки сайта', 'manage_options', 'nc-theme-options', 'nc_theme_settings_page', 'dashicons-admin-generic', 99);
 }
 add_action('admin_menu', 'nc_add_theme_menu_item');
 

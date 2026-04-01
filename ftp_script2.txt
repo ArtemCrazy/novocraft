@@ -1,0 +1,11 @@
+open artemc9o.beget.tech
+artemc9o
+\y<*9_x1ND]"~{F&
+cd crazy.studio/public_html/ai/NovocraftD/wordpress/wp-content/themes/novocraft
+lcd c:\Users\user\Documents\Projects\Novacraft\novacraft-theme
+put front-page.php
+put functions.php
+put header.php
+put footer.php
+disconnect
+quit

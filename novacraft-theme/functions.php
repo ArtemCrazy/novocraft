@@ -158,4 +158,3 @@ function nc_display_setting($args) {
     echo '<input type="text" name="' . esc_attr($args['id']) . '" value="' . esc_attr($val) . '" class="regular-text" />';
 }
 
-require get_template_directory() . '/inc/home-meta.php';

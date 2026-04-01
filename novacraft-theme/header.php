@@ -43,7 +43,7 @@
   <header class="header" id="header">
     <div class="container header__inner">
       <a href="<?php echo home_url('/'); ?>" class="header__logo">
-        <img src="<?php echo site_url('../img/'); ?>"Logo.png" alt="Novocraft" class="header__logo-img">
+        <img src="<?php echo get_template_directory_uri(); ?>/img/Logo.png" alt="Novocraft" class="header__logo-img">
         <div>
           <div class="header__logo-text">Nova<span>craft</span></div>
           <div class="header__logo-sub">мебель на заказ</div>

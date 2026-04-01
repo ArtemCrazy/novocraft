@@ -18,11 +18,12 @@
 <?php wp_body_open(); ?>
 
   <!-- ============ TOP BAR ============ -->
+  <?php $c = novacraft_contacts(); ?>
   <div class="topbar">
     <div class="container topbar__inner">
-      <div class="topbar__left"><span><?php echo esc_html(get_field('address_msk', 'option') ?: 'г. Москва, МО, Нижний Новгород'); ?></span><span class="topbar__sep">|</span><span><?php echo esc_html(get_field('work_hours', 'option') ?: 'Ежедневно 9:00–21:00'); ?></span></div>
+      <div class="topbar__left"><span><?php echo esc_html($c['address'] ?: 'г. Москва, МО, Нижний Новгород'); ?></span><span class="topbar__sep">|</span><span><?php echo esc_html($c['work_hours'] ?: 'Ежедневно 9:00–21:00'); ?></span></div>
       <div class="topbar__right">
-        <?php $email = get_field('val_email', 'option') ?: '9160128777@mail.ru'; ?>
+        <?php $email = $c['email'] ?: '9160128777@mail.ru'; ?>
         <a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a>
         <span class="topbar__sep">|</span>
         <?php if($c['whatsapp']): ?>

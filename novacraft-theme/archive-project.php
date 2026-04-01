@@ -45,10 +45,10 @@ get_header(); ?>
 $projects = get_posts(array('post_type' => 'project', 'posts_per_page' => -1));
 foreach($projects as $p):
   setup_postdata($p);
-  $area = get_field('p_area', $p->ID) ?: '0';
-  $mat = get_field('p_material', $p->ID) ?: 'ЛДСП';
-  $sort_date = get_field('p_date', $p->ID) ?: '20250101';
-  $text_date = get_field('p_date_text', $p->ID) ?: 'январь 2025';
+  $area = get_post_meta($p->ID, 'p_area', true) ?: '0';
+  $mat = get_post_meta($p->ID, 'p_material', true) ?: 'ЛДСП';
+  $sort_date = get_post_meta($p->ID, 'p_date', true) ?: '20250101';
+  $text_date = get_post_meta($p->ID, 'p_date_text', true) ?: 'январь 2025';
   $cats = get_the_terms($p->ID, 'project_cat');
   $cat_name = ($cats && !is_wp_error($cats)) ? $cats[0]->name : 'Проект';
   $img = get_the_post_thumbnail_url($p->ID);

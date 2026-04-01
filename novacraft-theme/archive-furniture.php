@@ -192,9 +192,8 @@ foreach($f_posts as $f) {
    if(!$thumb) {
       $thumb = get_template_directory_uri() . '/img/kitchen_010000.jpg';
    }
-   
-   $price = get_field('f_price', $f->ID) ?: 'по запросу';
-   $material = get_field('f_material', $f->ID);
+   $price = get_post_meta($f->ID, 'f_price', true) ?: 'по запросу';
+   $material = get_post_meta($f->ID, 'f_material', true);
    
    $wp_products[] = array(
       'id' => $f->ID,

@@ -1,5 +1,15 @@
 <?php
 get_header(); ?>
+<main id="primary" class="site-main">
+<?php
+    $archive_page = get_page_by_title('Мебель для дома');
+    if (!$archive_page) $archive_page = get_page_by_path('furniture');
+    if (!$archive_page) $archive_page = get_page_by_title('Для дома');
+
+    if ($archive_page && trim($archive_page->post_content) !== '') {
+        echo apply_filters('the_content', $archive_page->post_content);
+    } else {
+?>
 
 
     <!-- ============ PAGE TITLE ============ -->
@@ -178,6 +188,8 @@ get_header(); ?>
     </div>
   </section>
 
+<?php } ?>
+</main>
   <!-- ============ FOOTER ============ -->
   
 <?php 

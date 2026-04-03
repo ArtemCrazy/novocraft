@@ -40,7 +40,7 @@ $u = esc_url( get_template_directory_uri() );
                         </div>
                         <div class="contact__detail-body">
                             <div class="contact__detail-label">Адрес</div>
-                            <div class="contact__detail-value">г. Москва, ул. Перовское шоссе, д2к2</div>
+                            <div class="contact__detail-value"><?php echo esc_html( nc_moscow_address() ); ?></div>
                         </div>
                     </div>
 
@@ -75,7 +75,7 @@ $u = esc_url( get_template_directory_uri() );
                     </div>
                 </div>
                 <div class="contact-location-map">
-                    <iframe src="https://yandex.ru/map-widget/v1/?ll=37.740172%2C55.734105&z=16&pt=37.740172%2C55.734105%2Cpm2gnl" width="100%" height="100%" frameborder="0" style="height:100%;min-height:380px;border:0;"></iframe>
+                    <iframe src="<?php echo esc_url( nc_moscow_map() ); ?>" width="100%" height="100%" frameborder="0" style="height:100%;min-height:380px;border:0;"></iframe>
                 </div>
             </div>
 
@@ -107,14 +107,14 @@ $u = esc_url( get_template_directory_uri() );
                     <div class="contact__detail">
                         <div class="contact__detail-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <path d="M4 4h16c1.1 0 2 .9 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                                 <polyline points="22,6 12,13 2,6"/>
                             </svg>
                         </div>
                         <div class="contact__detail-body">
                             <div class="contact__detail-label">Почта для эскизов и расчетов</div>
                             <div class="contact__detail-value">
-                                <a href="mailto:9160128777@mail.ru">9160128777@mail.ru</a>
+                                <a href="mailto:<?php echo esc_attr( nc_email() ); ?>"><?php echo esc_html( nc_email() ); ?></a>
                             </div>
                         </div>
                     </div>
@@ -136,7 +136,7 @@ $u = esc_url( get_template_directory_uri() );
                     </div>
                 </div>
                 <div class="contact-location-map">
-                    <iframe src="https://yandex.ru/map-widget/v1/?ll=43.921385%2C56.331206&z=16&pt=43.921385%2C56.331206%2Cpm2gnl" width="100%" height="100%" frameborder="0" style="height:100%;min-height:380px;border:0;"></iframe>
+                    <iframe src="<?php echo esc_url( nc_nn_map() ); ?>" width="100%" height="100%" frameborder="0" style="height:100%;min-height:380px;border:0;"></iframe>
                 </div>
             </div>
 

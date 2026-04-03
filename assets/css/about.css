@@ -1,0 +1,372 @@
+/* =============================================
+   ABOUT / PRODUCTION
+   ============================================= */
+.about__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3xl);
+    align-items: center;
+}
+
+.about__image {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    position: relative;
+}
+
+.about__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.about__image-badge {
+    position: absolute;
+    bottom: var(--space-lg);
+    left: var(--space-lg);
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.about__image-badge strong {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    color: var(--color-accent);
+}
+
+.about__image-badge span {
+    font-size: 0.75rem;
+    color: var(--color-text-soft);
+    line-height: 1.3;
+}
+
+.about__text h2 {
+    margin-bottom: var(--space-lg);
+}
+
+.about__text p {
+    color: var(--color-text-soft);
+    font-size: 0.9rem;
+    line-height: 1.8;
+    margin-bottom: var(--space-md);
+}
+
+.about__features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+.about__feature {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.85rem;
+    color: var(--color-text);
+}
+
+.about__feature svg {
+    width: 18px;
+    height: 18px;
+    color: var(--color-accent);
+    flex-shrink: 0;
+}
+
+/* ---- Production Today block ---- */
+.production-today__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3xl);
+    align-items: center;
+}
+
+.production-today__media {
+    position: relative;
+}
+
+.production-today__img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    display: block;
+}
+
+.production-today__media-caption {
+    margin-top: var(--space-sm);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    text-align: center;
+    font-style: italic;
+}
+
+.production-today__label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+}
+
+.production-today__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--color-text);
+    margin-bottom: var(--space-md);
+}
+
+.production-today__text p {
+    color: var(--color-text-soft);
+    line-height: 1.7;
+    margin-bottom: var(--space-md);
+}
+
+.production-today__facts {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-lg) 0 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+.production-today__facts li {
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border-light);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.875rem;
+    color: var(--color-text-soft);
+    line-height: 1.4;
+}
+
+.production-today__facts li span {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-bottom: 2px;
+}
+
+/* ---- Timeline intro divider ---- */
+.timeline-intro {
+    padding: var(--space-3xl) 0 var(--space-xl);
+}
+
+.timeline-intro__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+}
+
+.timeline-intro__line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--color-border), transparent);
+}
+
+.timeline-intro__content {
+    text-align: center;
+    flex-shrink: 0;
+    max-width: 520px;
+}
+
+.timeline-intro__label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+}
+
+.timeline-intro__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+    line-height: 1.15;
+}
+
+.timeline-intro__text {
+    color: var(--color-text-soft);
+    font-size: 1rem;
+    line-height: 1.65;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .production-today__inner {
+        grid-template-columns: 1fr;
+    }
+    .production-today__facts {
+        grid-template-columns: 1fr 1fr;
+    }
+    .timeline-intro__line {
+        display: none;
+    }
+    .about__grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-2xl);
+    }
+}
+
+/* =============================================
+   TIMELINE — oversized year backdrop
+   ============================================= */
+.timeline {
+    position: relative;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: var(--space-xl) 0 var(--space-3xl);
+}
+
+.timeline__item {
+    position: relative;
+    width: 100%;
+    margin-bottom: 4rem;
+    min-height: 220px;
+    overflow: hidden;
+}
+
+/* ---- Giant year watermark ---- */
+.timeline__year-bg {
+    position: absolute;
+    top: -0.18em;
+    font-family: var(--font-heading);
+    font-size: clamp(120px, 22vw, 260px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: transparent;
+    -webkit-text-stroke: 2px rgba(42, 157, 143, 0.13);
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+    white-space: nowrap;
+}
+
+/* Odd: year on LEFT, card on RIGHT */
+.timeline__item:nth-child(odd) .timeline__year-bg  { left: -0.05em; }
+.timeline__item:nth-child(odd) .timeline__content  {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+/* Even: year on RIGHT, card on LEFT */
+.timeline__item:nth-child(even) .timeline__year-bg { right: -0.05em; left: auto; }
+.timeline__item:nth-child(even) .timeline__content {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+/* ---- Card ---- */
+.timeline__content {
+    position: relative;
+    z-index: 1;
+    width: 52%;
+    padding: var(--space-xl);
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border-light);
+    box-shadow: var(--shadow-md);
+    transition: transform var(--duration-normal) var(--ease-out),
+                box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.timeline__content:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Small accent year inside card */
+.timeline__year {
+    display: inline-block;
+    padding: 3px 12px;
+    background: var(--color-accent);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    font-weight: 800;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-sm);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(42, 157, 143, 0.3);
+}
+
+.timeline__title {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+    color: var(--color-text);
+    line-height: 1.2;
+}
+
+.timeline__text {
+    font-size: 0.875rem;
+    color: var(--color-text-soft);
+    line-height: 1.65;
+    margin-bottom: var(--space-md);
+}
+
+.timeline__img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--radius-md);
+    margin-top: var(--space-sm);
+}
+
+/* ---- End marker ---- */
+.timeline-end {
+    text-align: center;
+    margin: var(--space-3xl) auto 0;
+    max-width: 400px;
+    padding: var(--space-xl);
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-light);
+}
+
+.timeline-end h3 {
+    font-family: var(--font-heading);
+    color: var(--color-accent);
+    font-size: 1.75rem;
+    font-style: italic;
+    margin: 0;
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 700px) {
+    .timeline__content {
+        width: 100%;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .timeline__year-bg {
+        font-size: 28vw;
+        opacity: 0.6;
+    }
+
+    .timeline__item {
+        min-height: 160px;
+    }
+}

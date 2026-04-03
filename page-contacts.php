@@ -53,7 +53,7 @@ $u = esc_url( get_template_directory_uri() );
                         <div class="contact__detail-body">
                             <div class="contact__detail-label">Телефон для связи</div>
                             <div class="contact__detail-value">
-                                <a href="tel:+79160128777">+7 (916) 012-87-77</a>
+                                <a href="tel:<?php echo esc_attr( nc_phone() ); ?>"><?php echo esc_html( nc_phone_fmt() ); ?></a>
                             </div>
                         </div>
                     </div>
@@ -68,7 +68,7 @@ $u = esc_url( get_template_directory_uri() );
                         <div class="contact__detail-body">
                             <div class="contact__detail-label">Режим работы</div>
                             <div class="contact__detail-value">
-                                Ежедневно 9:00-21:00
+                                <?php echo esc_html( nc_hours() ); ?>
                                 <span class="hint">Посещение офиса по предварительной записи</span>
                             </div>
                         </div>
@@ -100,7 +100,7 @@ $u = esc_url( get_template_directory_uri() );
                         </div>
                         <div class="contact__detail-body">
                             <div class="contact__detail-label">Адрес завода</div>
-                            <div class="contact__detail-value">г. Нижний Новгород, ул. Маршала Воронова, 11</div>
+                            <div class="contact__detail-value"><?php echo esc_html( nc_address() ); ?></div>
                         </div>
                     </div>
 

@@ -75,13 +75,27 @@ if ( $gallery && is_array( $gallery ) ) {
                     <?php if ( ! empty( $images ) ) :
                         $main_url = wp_get_attachment_image_url( $images[0], 'large' );
                     ?>
-                        <img class="product-inner__img"
+                        <img class="product-inner__img" id="productMainImg"
                              src="<?php echo esc_url( $main_url ); ?>"
                              alt="<?php the_title_attribute(); ?>">
                     <?php else : ?>
-                        <img class="product-inner__img" src="<?php echo $u; ?>/img/kitchen_010000.jpg" alt="<?php the_title_attribute(); ?>">
+                        <img class="product-inner__img" id="productMainImg" src="<?php echo $u; ?>/img/kitchen_010000.jpg" alt="<?php the_title_attribute(); ?>">
                     <?php endif; ?>
                 </div>
+
+                <?php if ( count( $images ) > 1 ) : ?>
+                <div class="product-inner__thumbs">
+                    <?php foreach ( $images as $i => $img_id ) :
+                        $thumb = wp_get_attachment_image_url( $img_id, 'thumbnail' );
+                        $full  = wp_get_attachment_image_url( $img_id, 'large' );
+                    ?>
+                    <button class="product-inner__thumb<?php echo $i === 0 ? ' product-inner__thumb--active' : ''; ?>"
+                            onclick="ncSwitchImg('<?php echo esc_js( $full ); ?>', this)">
+                        <img src="<?php echo esc_url( $thumb ); ?>" alt="" loading="lazy">
+                    </button>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -195,6 +209,14 @@ if ( $gallery && is_array( $gallery ) ) {
 </div><!-- /.container -->
 
 <script>
+function ncSwitchImg(src, btn) {
+    document.getElementById('productMainImg').src = src;
+    document.querySelectorAll('.product-inner__thumb').forEach(function(t) {
+        t.classList.remove('product-inner__thumb--active');
+    });
+    btn.classList.add('product-inner__thumb--active');
+}
+
 function switchProductTab(tabId, btn) {
     document.querySelectorAll('.product-inner__tab-panel').forEach(function(p) {
         p.classList.remove('product-inner__tab-panel--active');

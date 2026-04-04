@@ -105,7 +105,7 @@ endif;
                     // 2. Имя файла из мета (тема /img/about/)
                     elseif ( $img_file = get_post_meta( get_the_ID(), '_nc_history_img', true ) ) :
                     ?>
-                        <img src="<?php echo esc_url( get_template_directory_uri() . '/img/about/' . rawurlencode( $img_file ) ); ?>"
+                        <img src="<?php echo esc_url( get_template_directory_uri() . '/img/about/' . $img_file ); ?>"
                              alt="<?php the_title_attribute(); ?>"
                              class="timeline__img" loading="lazy">
                     <?php endif; ?>

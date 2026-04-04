@@ -121,6 +121,9 @@ require_once get_template_directory() . '/inc/customizer.php';
 // ─── Product meta boxes ───────────────────────────────────────────────────────
 require_once get_template_directory() . '/inc/product-meta.php';
 
+// ─── History meta boxes (таймлайн «О производстве») ──────────────────────────
+require_once get_template_directory() . '/inc/history-meta.php';
+
 
 // ─── Custom Post Types ──────────────────────────────────────────────────────
 function novacraft_register_cpt(): void {
@@ -154,6 +157,26 @@ function novacraft_register_cpt(): void {
         'hierarchical'  => true,
         'rewrite'       => [ 'slug' => 'project-category' ],
         'show_in_rest'  => true,
+    ] );
+
+    // История компании (таймлайн)
+    register_post_type( 'novacraft_history', [
+        'labels' => [
+            'name'               => 'История компании',
+            'singular_name'      => 'Запись истории',
+            'add_new'            => 'Добавить год',
+            'add_new_item'       => 'Новая запись',
+            'edit_item'          => 'Редактировать запись',
+            'all_items'          => 'Все записи',
+            'not_found'          => 'Записей не найдено',
+        ],
+        'public'        => false,
+        'show_ui'       => true,
+        'show_in_menu'  => true,
+        'menu_icon'     => 'dashicons-clock',
+        'supports'      => [ 'title', 'editor', 'thumbnail' ],
+        'show_in_rest'  => true,
+        'menu_position' => 25,
     ] );
 
     // Продукция

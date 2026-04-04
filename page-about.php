@@ -98,8 +98,16 @@ endif;
                     <?php if ( $desc ) : ?>
                     <div class="timeline__text"><?php echo apply_filters( 'the_content', $desc ); ?></div>
                     <?php endif; ?>
-                    <?php if ( $has_thumb ) : ?>
-                    <?php the_post_thumbnail( 'large', [ 'class' => 'timeline__img', 'loading' => 'lazy' ] ); ?>
+                    <?php
+                    // 1. Миниатюра из медиабиблиотеки
+                    if ( $has_thumb ) :
+                        the_post_thumbnail( 'large', [ 'class' => 'timeline__img', 'loading' => 'lazy' ] );
+                    // 2. Имя файла из мета (тема /img/about/)
+                    elseif ( $img_file = get_post_meta( get_the_ID(), '_nc_history_img', true ) ) :
+                    ?>
+                        <img src="<?php echo esc_url( get_template_directory_uri() . '/img/about/' . $img_file ); ?>"
+                             alt="<?php the_title_attribute(); ?>"
+                             class="timeline__img" loading="lazy">
                     <?php endif; ?>
                 </div>
             </div>

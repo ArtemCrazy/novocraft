@@ -9,7 +9,14 @@ $u = esc_url( get_template_directory_uri() );
 <!-- ============ PAGE HERO ============ -->
 <section class="section" style="padding-bottom: 0; padding-top: 60px;">
     <div class="container">
-        <h1 class="section-title" style="text-align: left; margin-bottom: 0;">Контакты</h1>
+        <h1 class="section-title" style="text-align: left; margin-bottom: 0;"><?php the_title(); ?></h1>
+        <?php if ( have_posts() ) : the_post();
+            $content = get_the_content();
+            if ( $content ) : ?>
+        <div style="margin-top: var(--space-md); font-size: 1rem; color: var(--color-text-soft); max-width: 640px; line-height: 1.7;">
+            <?php echo apply_filters( 'the_content', $content ); ?>
+        </div>
+        <?php endif; endif; ?>
     </div>
 </section>
 

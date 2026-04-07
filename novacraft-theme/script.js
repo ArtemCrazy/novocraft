@@ -472,3 +472,43 @@ heroStats.forEach(stat => {
     statsObserver.observe(stat);
   }
 });
+
+/* ============================================================
+   PROJECTS PAGE — filter & sort
+   ============================================================ */
+
+function filterProjects(cat, btn) {
+    // Update active button
+    document.querySelectorAll('.projects-filter__tag').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const cards = document.querySelectorAll('#projectsGrid .proj-card');
+    let visible = 0;
+    cards.forEach(card => {
+        const match = cat === 'all' || card.dataset.cat === cat;
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+    const countEl = document.getElementById('countNum');
+    if (countEl) countEl.textContent = visible;
+}
+
+function sortProjects(by, btn) {
+    document.querySelectorAll('.projects-sort__btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const grid = document.getElementById('projectsGrid');
+    const cards = Array.from(grid.querySelectorAll('.proj-card'));
+
+    cards.sort((a, b) => {
+        if (by === 'date') {
+            return parseInt(b.dataset.date || 0) - parseInt(a.dataset.date || 0);
+        }
+        if (by === 'area') {
+            return parseFloat(b.dataset.area || 0) - parseFloat(a.dataset.area || 0);
+        }
+        return 0;
+    });
+
+    cards.forEach(card => grid.appendChild(card));
+}

@@ -1,371 +1,311 @@
+<?php get_header(); ?>
+
+<main id="primary" class="site-main">
+
+<?php if ( have_posts() ) : while ( have_posts() ) : the_post();
+
+  $area      = get_post_meta( get_the_ID(), 'p_area',      true );
+  $material  = get_post_meta( get_the_ID(), 'p_material',  true );
+  $date_text = get_post_meta( get_the_ID(), 'p_date_text', true );
+  $location  = get_post_meta( get_the_ID(), 'p_location',  true );
+  $duration  = get_post_meta( get_the_ID(), 'p_duration',  true );
+  $style     = get_post_meta( get_the_ID(), 'p_style',     true );
+  $items     = get_post_meta( get_the_ID(), 'p_items_count', true );
+
+  $cats     = get_the_terms( get_the_ID(), 'project_cat' );
+  $cat_name = ( $cats && ! is_wp_error( $cats ) ) ? $cats[0]->name : '';
+
+  $main_img = get_the_post_thumbnail_url( get_the_ID(), 'full' );
+  if ( ! $main_img ) $main_img = get_template_directory_uri() . '/img/kitchen_wood_autumn.jpg';
+
+  /* Gallery: all images attached to this post */
+  $thumb_id = get_post_thumbnail_id( get_the_ID() );
+  $attached = get_attached_media( 'image', get_the_ID() );
+  $gallery = [];
+  if ( $thumb_id ) {
+    $gallery[] = $thumb_id;
+  }
+  foreach ( $attached as $att ) {
+    if ( $att->ID !== (int) $thumb_id ) {
+      $gallery[] = $att->ID;
+    }
+  }
+  $has_gallery = count( $gallery ) > 1;
+
+?>
+
+<!-- ============ HERO ============ -->
+<section class="sp-hero">
+  <div class="sp-hero__bg" style="background-image:url('<?php echo esc_url( $main_img ); ?>')"></div>
+  <div class="sp-hero__overlay"></div>
+  <div class="sp-hero__content">
+    <div class="container">
+      <h1 class="sp-hero__title"><?php the_title(); ?></h1>
+      <div class="sp-hero__actions">
+        <a href="#contact" class="btn btn--primary">Рассчитать стоимость</a>
+        <?php if ( $has_gallery ) : ?>
+        <a href="#sp-gallery" class="sp-hero__photo-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Смотреть фото
+        </a>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GALLERY STRIP ============ -->
+<?php if ( $has_gallery ) : $total = count( $gallery ); ?>
+<section class="sp-gallery" id="sp-gallery">
+  <div class="sp-gallery__wrap">
+    <div class="sp-gallery__track" id="spTrack">
+      <?php foreach ( $gallery as $img_id ) :
+        $src  = wp_get_attachment_image_url( $img_id, 'large' );
+        $full = wp_get_attachment_image_url( $img_id, 'full' );
+        $alt  = get_post_meta( $img_id, '_wp_attachment_image_alt', true );
+        if ( ! $alt ) $alt = get_the_title();
+      ?>
+      <div class="sp-gallery__slide" data-full="<?php echo esc_url( $full ); ?>">
+        <img src="<?php echo esc_url( $src ); ?>" alt="<?php echo esc_attr( $alt ); ?>" loading="lazy">
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <div class="sp-gallery__footer">
+    <div class="sp-gallery__nav">
+      <button class="sp-gallery__arrow" id="spPrev" aria-label="Назад">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="sp-gallery__counter"><span id="spCur">1</span>&nbsp;—&nbsp;<span id="spTotal"><?php echo $total; ?></span></span>
+      <button class="sp-gallery__arrow" id="spNext" aria-label="Вперёд">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+    <a href="#contact" class="sp-gallery__cta">
+      Собрать проект под вас
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+<?php endif; ?>
+
+<!-- ============ BREADCRUMB ============ -->
+<nav class="pd-breadcrumb">
+  <div class="container">
+    <div class="pd-breadcrumb__inner">
+      <a href="<?php echo esc_url( home_url( '/' ) ); ?>">Главная</a>
+      <span class="pd-breadcrumb__sep">›</span>
+      <?php
+        $projects_page = get_page_by_path( 'проекты' );
+        if ( ! $projects_page ) $projects_page = get_page_by_path( 'projects' );
+        $projects_url  = $projects_page ? get_permalink( $projects_page ) : home_url( '/projects/' );
+      ?>
+      <a href="<?php echo esc_url( $projects_url ); ?>">Проекты</a>
+      <span class="pd-breadcrumb__sep">›</span>
+      <span class="pd-breadcrumb__current"><?php the_title(); ?></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ О ПРОЕКТЕ ============ -->
 <?php
-get_header(); ?>
+  $solution  = get_post_meta( get_the_ID(), 'p_solution', true );
+  $photo2    = isset( $gallery[1] ) ? wp_get_attachment_image_url( $gallery[1], 'large' ) : '';
+  $photo3    = isset( $gallery[2] ) ? wp_get_attachment_image_url( $gallery[2], 'large' ) : '';
+?>
+<section class="sp-detail">
+  <div class="container">
+    <div class="sp-detail__grid">
 
+      <!-- LEFT: task + photos + solution -->
+      <div class="sp-content">
 
-  <!-- ============ HERO ============ -->
-  <section class="pd-hero">
-    <img class="pd-hero__img" src="<?php echo site_url('../img/'); ?>"kitchen_wood_autumn.jpg" alt="Кухня в природных тонах">
-    <div class="pd-hero__overlay"></div>
-    <div class="pd-hero__content">
-      <div class="container">
-        <span class="pd-hero__category">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Кухня
-        </span>
-        <h1 class="pd-hero__title">Кухня в природных тонах<br>с деревянным фасадом</h1>
-        <p class="pd-hero__subtitle">Тёплая скандинавская кухня с массивными деревянными фасадами, открытыми полками и интегрированной техникой — под индивидуальный проект заказчика.</p>
-        <div class="pd-hero__badges">
-          <span class="pd-hero__badge">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/></svg>
-            22 м²
-          </span>
-          <span class="pd-hero__badge">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h8"/></svg>
-            ЛДСП + МДФ
-          </span>
-          <span class="pd-hero__badge">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            февраль 2026
-          </span>
-          <span class="pd-hero__badge">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Москва
-          </span>
-          <span class="pd-hero__badge">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-            28 дней
-          </span>
+        <!-- ЗАДАЧА -->
+        <?php
+          $task = get_post_meta( get_the_ID(), 'p_task', true );
+          if ( $task ) :
+        ?>
+        <div class="sp-content__block">
+          <span class="sp-section-label">Задача</span>
+          <div class="sp-content__text">
+            <?php echo wp_kses_post( apply_filters( 'the_content', $task ) ); ?>
+          </div>
         </div>
+        <?php endif; ?>
+
+        <!-- Фото после задачи -->
+        <?php if ( $photo2 ) : ?>
+        <div class="sp-content__photo">
+          <img src="<?php echo esc_url( $photo2 ); ?>" alt="<?php the_title_attribute(); ?>">
+        </div>
+        <?php endif; ?>
+
+        <!-- РЕШЕНИЕ (wp_editor) -->
+        <?php if ( $solution ) : ?>
+        <div class="sp-content__block">
+          <span class="sp-section-label">Решение</span>
+          <div class="sp-content__text">
+            <?php echo wp_kses_post( apply_filters( 'the_content', $solution ) ); ?>
+          </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Фото после решения -->
+        <?php if ( $photo3 ) : ?>
+        <div class="sp-content__photo">
+          <img src="<?php echo esc_url( $photo3 ); ?>" alt="<?php the_title_attribute(); ?>">
+        </div>
+        <?php endif; ?>
+
       </div>
+
+      <!-- RIGHT: specs + CTA -->
+      <aside class="sp-specs">
+        <?php
+          $specs = [];
+          if ( $area )      $specs[] = [ 'Площадь',     $area . ' м²' ];
+          if ( $material )  $specs[] = [ 'Материал',    $material ];
+          if ( $style )     $specs[] = [ 'Стиль',       $style ];
+          if ( $location )  $specs[] = [ 'Город',       $location ];
+          if ( $duration )  $specs[] = [ 'Срок работ',  $duration ];
+          if ( $date_text ) $specs[] = [ 'Дата сдачи',  $date_text ];
+          if ( $items )     $specs[] = [ 'Изготовлено', $items ];
+        ?>
+        <?php foreach ( $specs as $s ) : ?>
+        <div class="sp-spec">
+          <span class="sp-spec__label"><?php echo esc_html( $s[0] ); ?></span>
+          <span class="sp-spec__dots"></span>
+          <span class="sp-spec__val"><?php echo esc_html( $s[1] ); ?></span>
+        </div>
+        <?php endforeach; ?>
+
+        <div class="sp-specs__cta">
+          <a href="#contact" class="btn btn--primary">Хочу такой же</a>
+        </div>
+      </aside>
+
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ============ BREADCRUMB ============ -->
-  <nav class="pd-breadcrumb">
-    <div class="container">
-      <div class="pd-breadcrumb__inner">
-        <a href="<?php echo home_url('/'); ?>">Главная</a>
-        <span class="pd-breadcrumb__sep">›</span>
-        <a href="<?php echo get_post_type_archive_link('project'); ?>">Проекты</a>
-        <span class="pd-breadcrumb__sep">›</span>
-        <span class="pd-breadcrumb__current">Кухня в природных тонах</span>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ============ MAIN BODY ============ -->
-  <section class="pd-body">
-    <div class="container">
-      <div class="pd-layout">
-
-        <!-- LEFT: description + tasks -->
+<!-- ============ PREV / NEXT ============ -->
+<?php
+  $prev = get_adjacent_post( false, '', true,  'project_cat' );
+  $next = get_adjacent_post( false, '', false, 'project_cat' );
+  if ( $prev || $next ) :
+?>
+<div class="pd-nav">
+  <div class="container">
+    <div class="pd-nav__inner">
+      <?php if ( $prev ) :
+        $prev_img = get_the_post_thumbnail_url( $prev->ID, 'thumbnail' );
+        if ( ! $prev_img ) $prev_img = get_template_directory_uri() . '/img/kitchen_wood_autumn.jpg';
+      ?>
+      <a href="<?php echo esc_url( get_permalink( $prev->ID ) ); ?>" class="pd-nav__item">
+        <img src="<?php echo esc_url( $prev_img ); ?>" alt="<?php echo esc_attr( $prev->post_title ); ?>" class="pd-nav__img">
         <div>
-          <!-- Description -->
-          <div class="pd-description">
-            <span class="pd-section-label">Описание</span>
-            <div class="pd-description__text">
-              <p>Проект реализован в новом ЖК Подмосковья. Перед нами стояла задача — сделать кухню, которая ощущается как продолжение природы: тёплые текстуры, массивное дерево, мягкий свет. Заказчик принёс готовый дизайн-проект от студии.</p>
-              <p>Фасады выполнены из МДФ с плёнкой под шпон ясеня. Столешница — кварцевый агломерат с матовой поверхностью. Верхние шкафы заменены открытыми полками — это даёт ощущение простора и лёгкости. Ниши подсвечены светодиодными лентами в теплом оттенке 2700K.</p>
-              <p>Всего изготовлено 14 единиц мебели: нижняя тумбовая группа из 8 секций, пенал, угловой шкаф, 4 открытых полочных модуля. Вся техника интегрирована: духовой шкаф, посудомойка, холодильник встроены заподлицо с фасадами.</p>
-            </div>
-          </div>
-
-          <!-- Tasks -->
-          <div class="pd-tasks">
-            <h2 class="pd-tasks__title">
-              <span class="pd-section-label">Задачи и решения</span>
-            </h2>
-
-            <!-- Task 1 -->
-            <div class="pd-task">
-              <div class="pd-task__content">
-                <span class="pd-task__number">01</span>
-                <h3 class="pd-task__title">Угловая секция без «мёртвого» пространства</h3>
-                <p class="pd-task__text">Заказчик терял около 40% объёма в угловом шкафу из-за отсутствия правильного механизма. Мы установили карусельный механизм Hafele Tandem с плавным выдвижением — теперь весь угол доступен. Нагрузка на полку — до 15 кг, срок службы механизма — 50 000 циклов.</p>
-              </div>
-              <div class="pd-task__img-wrap">
-                <img src="<?php echo site_url('../img/'); ?>"kitchen_olive_modern.jpg" alt="Угловая секция кухни" loading="lazy">
-              </div>
-            </div>
-
-            <!-- Task 2 (reverse) -->
-            <div class="pd-task pd-task--reverse">
-              <div class="pd-task__content">
-                <span class="pd-task__number">02</span>
-                <h3 class="pd-task__title">Интеграция вытяжки в потолочную нишу</h3>
-                <p class="pd-task__text">Стена, над которой располагалась рабочая зона, была несущей — выводить воздуховод через неё нельзя. Решение: встроенная купольная вытяжка с режимом рециркуляции. Мы скрыли её в нише из гипсокартона, декорированной деревянными рейками в тон фасадам. Выглядит как дизайнерский элемент.</p>
-              </div>
-              <div class="pd-task__img-wrap">
-                <img src="<?php echo site_url('../img/'); ?>"kitchen_green_classic.jpg" alt="Нища для вытяжки" loading="lazy">
-              </div>
-            </div>
-
-            <!-- Task 3 -->
-            <div class="pd-task">
-              <div class="pd-task__content">
-                <span class="pd-task__number">03</span>
-                <h3 class="pd-task__title">Открытые полки с подсветкой</h3>
-                <p class="pd-task__text">Верхний ярус — открытые полки из массива ясеня на скрытых кронштейнах. Нагрузка распределена через анкеры в несущую стену. Светодиодная лента Osram 2700K спрятана за фиксирующим буртиком полки — свет мягкий, источника не видно, рабочая поверхность освещена равномерно.</p>
-              </div>
-              <div class="pd-task__img-wrap">
-                <img src="<?php echo site_url('../img/'); ?>"kitchen_beige_compact.jpg" alt="Открытые полки с подсветкой" loading="lazy">
-              </div>
-            </div>
-          </div>
+          <div class="pd-nav__direction">← Предыдущий</div>
+          <div class="pd-nav__name"><?php echo esc_html( $prev->post_title ); ?></div>
         </div>
-
-        <!-- RIGHT: info card -->
-        <aside>
-          <div class="pd-info-card">
-            <div class="pd-info-card__head">
-              <div class="pd-info-card__head-title">Проект</div>
-              <div class="pd-info-card__head-value">Кухня в природных тонах</div>
-            </div>
-            <div class="pd-info-card__body">
-              <div class="pd-info-row">
-                <div class="pd-info-row__icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/></svg>
-                </div>
-                <div>
-                  <div class="pd-info-row__label">Площадь кухни</div>
-                  <div class="pd-info-row__val">22 м²</div>
-                </div>
-              </div>
-              <div class="pd-info-row">
-                <div class="pd-info-row__icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h8"/></svg>
-                </div>
-                <div>
-                  <div class="pd-info-row__label">Материалы</div>
-                  <div class="pd-info-row__val">ЛДСП Egger + МДФ шпон ясеня</div>
-                </div>
-              </div>
-              <div class="pd-info-row">
-                <div class="pd-info-row__icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                </div>
-                <div>
-                  <div class="pd-info-row__label">Дата сдачи</div>
-                  <div class="pd-info-row__val">Февраль 2026</div>
-                </div>
-              </div>
-              <div class="pd-info-row">
-                <div class="pd-info-row__icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                </div>
-                <div>
-                  <div class="pd-info-row__label">Срок производства</div>
-                  <div class="pd-info-row__val">28 рабочих дней</div>
-                </div>
-              </div>
-              <div class="pd-info-row">
-                <div class="pd-info-row__icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                </div>
-                <div>
-                  <div class="pd-info-row__label">Город</div>
-                  <div class="pd-info-row__val">Москва, МО</div>
-                </div>
-              </div>
-              <div class="pd-info-row">
-                <div class="pd-info-row__icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                </div>
-                <div>
-                  <div class="pd-info-row__label">Стиль</div>
-                  <div class="pd-info-row__val">Скандинавский / эко</div>
-                </div>
-              </div>
-              <div class="pd-info-row">
-                <div class="pd-info-row__icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                </div>
-                <div>
-                  <div class="pd-info-row__label">Изделий</div>
-                  <div class="pd-info-row__val">14 единиц мебели</div>
-                </div>
-              </div>
-            </div>
-            <div class="pd-info-card__cta">
-              <button class="btn btn--primary" onclick="openModal()">Хочу такой же проект</button>
-            </div>
-          </div>
-        </aside>
-
-      </div>
+      </a>
+      <?php endif; ?>
+      <?php if ( $next ) :
+        $next_img = get_the_post_thumbnail_url( $next->ID, 'thumbnail' );
+        if ( ! $next_img ) $next_img = get_template_directory_uri() . '/img/kitchen_wood_autumn.jpg';
+      ?>
+      <a href="<?php echo esc_url( get_permalink( $next->ID ) ); ?>" class="pd-nav__item pd-nav__item--next">
+        <img src="<?php echo esc_url( $next_img ); ?>" alt="<?php echo esc_attr( $next->post_title ); ?>" class="pd-nav__img">
+        <div>
+          <div class="pd-nav__direction">Следующий →</div>
+          <div class="pd-nav__name"><?php echo esc_html( $next->post_title ); ?></div>
+        </div>
+      </a>
+      <?php endif; ?>
     </div>
-  </section>
+  </div>
+</div>
+<?php endif; ?>
 
-  <!-- ============ GALLERY ============ -->
-  <section class="pd-gallery">
-    <div class="container">
-      <div class="pd-gallery__header">
-        <h2 class="pd-gallery__title">
-          <span class="pd-section-label">Фотогалерея</span>
-        </h2>
-        <span style="font-size:0.8rem;color:var(--color-text-muted)">Нажмите для увеличения</span>
-      </div>
-      <div class="pd-gallery__grid" id="galleryGrid">
-        <div class="pd-gallery__item pd-gallery__item--wide-tall" onclick="openLightbox(0)">
-          <img src="<?php echo site_url('../img/'); ?>"kitchen_wood_autumn.jpg" alt="Общий вид — осенняя кухня" loading="lazy">
-        </div>
-        <div class="pd-gallery__item" onclick="openLightbox(1)">
-          <img src="<?php echo site_url('../img/'); ?>"kitchen_olive_modern.jpg" alt="Угловая секция" loading="lazy">
-        </div>
-        <div class="pd-gallery__item" onclick="openLightbox(2)">
-          <img src="<?php echo site_url('../img/'); ?>"kitchen_green_classic.jpg" alt="Рабочая зона" loading="lazy">
-        </div>
-        <div class="pd-gallery__item pd-gallery__item--wide" onclick="openLightbox(3)">
-          <img src="<?php echo site_url('../img/'); ?>"kitchen_beige_compact.jpg" alt="Открытые полки с подсветкой" loading="lazy">
-        </div>
-        <div class="pd-gallery__item" onclick="openLightbox(4)">
-          <img src="<?php echo site_url('../img/'); ?>"kitchen_grey_marble.jpg" alt="Столешница из кварцита" loading="lazy">
-        </div>
-        <div class="pd-gallery__item" onclick="openLightbox(5)">
-          <img src="<?php echo site_url('../img/'); ?>"kitchen_mauve_classic.jpg" alt="Фасады крупным планом" loading="lazy">
-        </div>
-        <div class="pd-gallery__item" onclick="openLightbox(6)">
-          <img src="<?php echo site_url('../img/'); ?>"kitchen_dark_premium.jpg" alt="Ниша под вытяжку" loading="lazy">
-        </div>
-      </div>
-    </div>
-  </section>
+<!-- ============ CONTACT ============ -->
+<?php get_template_part( 'template-parts/contact-section' ); ?>
 
-  <!-- ============ PREV / NEXT ============ -->
-  <section class="pd-nav">
-    <div class="container">
-      <div class="pd-nav__inner">
-        <a href="<?php echo get_post_type_archive_link('project'); ?>" class="pd-nav__item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;opacity:.5"><polyline points="15 18 9 12 15 6"/></svg>
-          <div>
-            <div class="pd-nav__direction">Назад</div>
-            <div class="pd-nav__name">Все проекты</div>
-          </div>
-        </a>
-        <a href="project-kitchen-dark.html" class="pd-nav__item pd-nav__item--next">
-          <div>
-            <div class="pd-nav__direction">Следующий</div>
-            <div class="pd-nav__name">Тёмная кухня с каменной столешницей</div>
-          </div>
-          <img class="pd-nav__img" src="<?php echo site_url('../img/'); ?>"kitchen_dark_premium.jpg" alt="Следующий проект">
-        </a>
-      </div>
-    </div>
-  </section>
+<!-- ============ GALLERY LIGHTBOX ============ -->
+<div class="sp-lightbox" id="spLightbox" role="dialog" aria-modal="true" hidden>
+  <button class="sp-lightbox__close" id="spLbClose" aria-label="Закрыть">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <button class="sp-lightbox__arrow sp-lightbox__arrow--prev" id="spLbPrev" aria-label="Назад">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <div class="sp-lightbox__img-wrap">
+    <img class="sp-lightbox__img" id="spLbImg" src="" alt="">
+  </div>
+  <button class="sp-lightbox__arrow sp-lightbox__arrow--next" id="spLbNext" aria-label="Вперёд">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+</div>
 
-  <!-- CTA -->
-  <section class="section section--alt" style="padding:var(--space-2xl) 0;">
-    <div class="container" style="text-align:center;">
-      <h2 style="font-size:1.6rem;font-weight:700;margin-bottom:10px;">Хотите такой же результат?</h2>
-      <p style="color:var(--color-text-soft);margin-bottom:var(--space-lg);">Оставьте заявку — замерщик приедет бесплатно в удобное время</p>
-      <button class="btn btn--primary btn--lg" onclick="openModal()">Бесплатный замер</button>
-    </div>
-  </section>
+<script>
+(function(){
+  /* --- Gallery strip --- */
+  var track = document.getElementById('spTrack');
+  if (track) {
+    var slides = track.querySelectorAll('.sp-gallery__slide');
+    var total  = slides.length;
+    var cur    = 0;
 
-  <!-- ============ CONTACT ============ -->
-  <section class="section section--contact" id="contact">
-    <div class="container">
-      <div class="contact__bg-word">NOVACRAFT</div>
-      <div class="contact__grid">
-        <div class="contact__info reveal">
-          <div class="contact__info-body">
-            <p class="contact__info-eyebrow">Мы на связи</p>
-            <h2 class="contact__info-title">Поможем выбрать<br>и&nbsp;рассчитаем стоимость</h2>
-            <p class="contact__info-sub">Ответим на все вопросы и подготовим предварительный расчёт стоимости проекта.</p>
+    function goTo(i) {
+      cur = (i + total) % total;
+      slides[cur].scrollIntoView({behavior:'smooth', block:'nearest', inline:'start'});
+      document.getElementById('spCur').textContent = cur + 1;
+    }
 
-            <div class="contact__cards">
-              <a href="tel:+79160128777" class="contact__card">
-                <div class="contact__card-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                  </svg>
-                </div>
-                <div>
-                  <div class="contact__card-label">Телефон</div>
-                  <div class="contact__card-value">+7 (916) 012-87-77</div>
-                </div>
-                <svg class="contact__card-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </a>
+    var prev = document.getElementById('spPrev');
+    var next = document.getElementById('spNext');
+    if (prev) prev.addEventListener('click', function(){ goTo(cur - 1); });
+    if (next) next.addEventListener('click', function(){ goTo(cur + 1); });
+  }
 
-              <a href="https://t.me/novikov8777" target="_blank" class="contact__card">
-                <div class="contact__card-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 2L11 13" />
-                <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                  </svg>
-                </div>
-                <div>
-                  <div class="contact__card-label">Telegram</div>
-                  <div class="contact__card-value">@novikov8777</div>
-                </div>
-                <svg class="contact__card-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </a>
+  /* --- Lightbox --- */
+  var lb      = document.getElementById('spLightbox');
+  var lbImg   = document.getElementById('spLbImg');
+  var lbClose = document.getElementById('spLbClose');
+  var lbPrev  = document.getElementById('spLbPrev');
+  var lbNext  = document.getElementById('spLbNext');
+  var lbCur   = 0;
+  var lbSlides = document.querySelectorAll('.sp-gallery__slide');
+  var lbTotal  = lbSlides.length;
 
-              <div class="contact__card contact__card--addr">
-                <div class="contact__card-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                  </svg>
-                </div>
-                <div>
-                  <div class="contact__card-label">Производство и офис</div>
-                  <div class="contact__card-value">г. Нижний Новгород,<br>ул. Маршала Воронова, 11</div>
-                </div>
-              </div>
-            </div>
+  if (lbTotal === 0 || !lb) return;
 
-            <div class="contact__hours">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Ежедневно с 9:00 до 21:00
-            </div>
-          </div>
-        </div>
+  function lbOpen(i) {
+    lbCur = (i + lbTotal) % lbTotal;
+    lbImg.src = lbSlides[lbCur].dataset.full;
+    lb.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function lbClose2() {
+    lb.hidden = true;
+    document.body.style.overflow = '';
+  }
 
-        <div class="contact__form-wrapper reveal reveal-delay-1">
-          <h3 class="contact__form-title">Оставить заявку</h3>
-          <p class="contact__form-subtitle">Заполните форму и мы свяжемся с вами в течение часа</p>
-          <form id="contactForm" onsubmit="handleSubmit(event)">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="contactName">Имя *</label>
-                <input type="text" id="contactName" name="name" placeholder="Антон" required>
-              </div>
-              <div class="form-group">
-                <label for="contactPhone">Телефон *</label>
-                <input type="tel" id="contactPhone" name="phone" placeholder="+7 (___) ___-__-__" required>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="contactService">Что вас интересует?</label>
-              <select id="contactService" name="service">
-                <option value="">Выберите услугу</option>
-                <option value="kitchen">Кухня на заказ</option>
-                <option value="wardrobe">Шкаф / Шкаф-купе</option>
-                <option value="closet">Гардеробная</option>
-                <option value="storage">Системы хранения</option>
-                <option value="tvunit">Стенка под телевизор</option>
-                <option value="other">Другое</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="contactMessage">Комментарий</label>
-              <textarea id="contactMessage" name="message"
-                placeholder="Опишите ваш проект — размеры, материалы, пожелания..."></textarea>
-            </div>
-            <div class="form-consent">
-              <input type="checkbox" id="contactConsent" required>
-              <label for="contactConsent">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</label>
-            </div>
-            <button type="submit" class="btn btn--primary btn--lg" style="width:100%; margin-top: var(--space-md);">
-              Отправить заявку
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
+  lbSlides.forEach(function(s, i){ s.addEventListener('click', function(){ lbOpen(i); }); });
+  if (lbClose) lbClose.addEventListener('click', lbClose2);
+  lb.addEventListener('click', function(e){ if (e.target === lb) lbClose2(); });
+  if (lbPrev) lbPrev.addEventListener('click', function(){ lbOpen(lbCur - 1); });
+  if (lbNext) lbNext.addEventListener('click', function(){ lbOpen(lbCur + 1); });
 
-  <!-- ============ FOOTER ============ -->
-  
+  document.addEventListener('keydown', function(e){
+    if (lb.hidden) return;
+    if (e.key === 'Escape')      lbClose2();
+    if (e.key === 'ArrowLeft')   lbOpen(lbCur - 1);
+    if (e.key === 'ArrowRight')  lbOpen(lbCur + 1);
+  });
+})();
+</script>
+
+<?php endwhile; endif; ?>
+
+</main>
+
 <?php get_footer(); ?>

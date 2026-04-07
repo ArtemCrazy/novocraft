@@ -60,7 +60,7 @@
               <circle cx="12" cy="10" r="3" />
             </svg>
             <div style="line-height: 1.4;">
-              <?php echo esc_html($c['address_nn']); ?><br>
+              <?php echo $c['address_nn']; ?><br>
               <span style="font-size: 0.85em; opacity: 0.7;">Работаем: Москва, МО, Н.Новгород</span>
             </div>
           </div>
@@ -72,17 +72,17 @@
         <div class="footer__socials">
           <?php if($c['whatsapp']): ?>
           <a href="<?php echo esc_url($c['whatsapp']); ?>" target="_blank" aria-label="WhatsApp">
-            <img src="<?php echo site_url('../icons/'); ?>whatsapp-2 2.png" alt="WhatsApp">
+            <img src="<?php echo get_template_directory_uri(); ?>/icons/whatsapp.png" alt="WhatsApp">
           </a>
           <?php endif; ?>
           <?php if($c['telegram']): ?>
           <a href="<?php echo esc_url($c['telegram']); ?>" target="_blank" aria-label="Telegram">
-            <img src="<?php echo site_url('../icons/'); ?>Vector.png" alt="Telegram">
+            <img src="<?php echo get_template_directory_uri(); ?>/icons/telegram.png" alt="Telegram">
           </a>
           <?php endif; ?>
           <?php if($c['max']): ?>
           <a href="<?php echo esc_url($c['max']); ?>" target="_blank" aria-label="MAX" class="footer__social-max">
-            <img src="<?php echo site_url('../icons/'); ?>max.png" alt="MAX">
+            <img src="<?php echo get_template_directory_uri(); ?>/icons/max.png" alt="MAX">
           </a>
           <?php endif; ?>
         </div>
@@ -281,6 +281,40 @@
       </form>
     </div>
   </div>
+
+  <!-- ============ ИЗБРАННОЕ DRAWER ============ -->
+  <div class="fav-overlay" id="favOverlay"></div>
+  <aside class="fav-drawer" id="favDrawer" aria-label="Избранное">
+    <div class="fav-drawer__header">
+      <div class="fav-drawer__title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        Избранное
+      </div>
+      <button class="fav-drawer__close" id="favDrawerClose" aria-label="Закрыть">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="fav-drawer__body">
+      <div class="fav-drawer__empty" id="favDrawerEmpty" style="display:flex">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.25">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        <p>Вы ещё ничего не добавили<br><span>Нажмите ♡ на любой карточке</span></p>
+      </div>
+      <div class="fav-drawer__list" id="favDrawerList"></div>
+    </div>
+
+    <div class="fav-drawer__footer">
+      <a href="<?php echo get_post_type_archive_link('furniture'); ?>" class="btn btn--primary" style="width:100%;text-align:center;">
+        Смотреть весь каталог
+      </a>
+    </div>
+  </aside>
 
   <!-- ============ SCROLL TO TOP ============ -->
   <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"

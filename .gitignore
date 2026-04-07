@@ -1,0 +1,19 @@
+# Бэкапы (большие файлы)
+*.zip
+*.sql
+
+# Служебные скрипты деплоя
+_*.ps1
+_*.php
+_*.py
+
+# Конфиги с паролями
+wp-config.php
+curl_config.txt
+deploy.config.ps1
+
+# Системное
+.claude/
+.vscode/
+Thumbs.db
+.DS_Store

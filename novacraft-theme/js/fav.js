@@ -84,12 +84,14 @@
     }
     if (empty) empty.style.display = 'none';
 
+    var fallbackImg = (window.ncTheme && window.ncTheme.fallbackImg) || '';
     list.innerHTML = favs.map(function (item) {
-      var imgSrc = item.img || '';
+      var imgSrc = item.img || fallbackImg;
+      var onErr  = fallbackImg ? (' onerror="this.onerror=null;this.src=\'' + fallbackImg + '\'"') : '';
       return [
         '<div class="fav-item" data-id="' + item.id + '">',
           '<a href="' + item.url + '" class="fav-item__img">',
-            '<img src="' + imgSrc + '" alt="' + item.title + '" loading="lazy">',
+            '<img src="' + imgSrc + '" alt="' + item.title + '" loading="lazy"' + onErr + '>',
           '</a>',
           '<div class="fav-item__info">',
             '<a href="' + item.url + '" class="fav-item__title">' + item.title + '</a>',

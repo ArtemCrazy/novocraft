@@ -110,6 +110,9 @@ function novacraft_enqueue_scripts() {
     // Favourites — на всех страницах сайта
     $fav_ver = filemtime(get_stylesheet_directory() . '/js/fav.js');
     wp_enqueue_script('novacraft-fav', get_template_directory_uri() . '/js/fav.js', array(), $fav_ver, true);
+    wp_localize_script('novacraft-fav', 'ncTheme', array(
+        'fallbackImg' => get_template_directory_uri() . '/img/kitchen_wood_autumn.jpg',
+    ));
 }
 add_action('wp_enqueue_scripts', 'novacraft_enqueue_scripts');
 

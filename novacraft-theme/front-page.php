@@ -248,13 +248,26 @@ $hb_title = $get_f('hb_title', 'Почему выбирают нас');
                 $thumb   = get_the_post_thumbnail_url(get_the_ID(), 'large');
                 $tag     = function_exists('get_field') ? get_field('project_tag') : '';
                 $meta    = function_exists('get_field') ? get_field('project_meta') : '';
-                if (!$thumb) {
-                    $thumb = get_template_directory_uri() . '/img/placeholder.jpg';
-                }
         ?>
         <a class="project-card reveal reveal-delay-<?php echo (int)$delay; ?>" href="<?php the_permalink(); ?>">
           <div class="project-card__image">
-            <img src="<?php echo esc_url($thumb); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy">
+            <?php if ($thumb) : ?>
+              <img src="<?php echo esc_url($thumb); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy">
+            <?php else : ?>
+              <div class="project-card__placeholder" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+                  <rect width="64" height="64" fill="#F6F4F1"/>
+                  <rect x="14" y="20" width="36" height="26" rx="3" fill="white" stroke="#6F706E" stroke-width="1.8"/>
+                  <path d="M14 32H50" stroke="#6F706E" stroke-width="1.8"/>
+                  <rect x="18" y="24" width="12" height="5" rx="1.5" fill="#37B7AB" opacity="0.2"/>
+                  <rect x="34" y="24" width="12" height="5" rx="1.5" fill="#37B7AB" opacity="0.2"/>
+                  <rect x="18" y="35" width="12" height="8" rx="1.5" fill="white" stroke="#6F706E" stroke-width="1.6"/>
+                  <rect x="34" y="35" width="12" height="8" rx="1.5" fill="white" stroke="#6F706E" stroke-width="1.6"/>
+                  <circle cx="27" cy="39" r="0.9" fill="#6F706E"/>
+                  <circle cx="37" cy="39" r="0.9" fill="#6F706E"/>
+                </svg>
+              </div>
+            <?php endif; ?>
           </div>
           <div class="project-card__body">
             <?php if ($tag) : ?><span class="project-card__tag"><?php echo esc_html($tag); ?></span><?php endif; ?>

@@ -40,6 +40,48 @@ add_action('init', function() {
     flush_rewrite_rules(false);
 }, 20);
 
+// Same placeholder-escape leak also corrupted post_content / postmeta / options —
+// every "%" char was replaced with "{<64-hex-hash>}" (e.g. flex-basis:66.66{...}
+// instead of 66.66%). The hash is stable per-request but any instance of the
+// brace-wrapped-64-hex pattern is the leak. Restore "%" once.
+add_action('init', function() {
+    if (get_option('nc_pct_fix_v1_done')) return;
+    global $wpdb;
+    $re = '/\{[a-f0-9]{64}\}/';
+
+    $rows = $wpdb->get_results("SELECT ID, post_content, post_excerpt, post_title FROM {$wpdb->posts} WHERE post_content LIKE '%{%}%' OR post_excerpt LIKE '%{%}%' OR post_title LIKE '%{%}%'");
+    foreach ($rows as $r) {
+        $upd = array();
+        foreach (['post_content', 'post_excerpt', 'post_title'] as $f) {
+            if (preg_match($re, $r->$f)) $upd[$f] = preg_replace($re, '%', $r->$f);
+        }
+        if ($upd) $wpdb->update($wpdb->posts, $upd, ['ID' => $r->ID]);
+    }
+
+    $metas = $wpdb->get_results("SELECT meta_id, meta_value FROM {$wpdb->postmeta} WHERE meta_value LIKE '%{%}%'");
+    foreach ($metas as $m) {
+        if (preg_match($re, $m->meta_value)) {
+            $wpdb->update($wpdb->postmeta, ['meta_value' => preg_replace($re, '%', $m->meta_value)], ['meta_id' => $m->meta_id]);
+        }
+    }
+
+    $opts = $wpdb->get_results("SELECT option_id, option_value FROM {$wpdb->options} WHERE option_value LIKE '%{%}%'");
+    foreach ($opts as $o) {
+        if (preg_match($re, $o->option_value)) {
+            $wpdb->update($wpdb->options, ['option_value' => preg_replace($re, '%', $o->option_value)], ['option_id' => $o->option_id]);
+        }
+    }
+
+    $termmetas = $wpdb->get_results("SELECT meta_id, meta_value FROM {$wpdb->termmeta} WHERE meta_value LIKE '%{%}%'");
+    foreach ($termmetas as $m) {
+        if (preg_match($re, $m->meta_value)) {
+            $wpdb->update($wpdb->termmeta, ['meta_value' => preg_replace($re, '%', $m->meta_value)], ['meta_id' => $m->meta_id]);
+        }
+    }
+
+    update_option('nc_pct_fix_v1_done', 1);
+}, 21);
+
 
 // 1. Theme Setup
 function novacraft_setup() {

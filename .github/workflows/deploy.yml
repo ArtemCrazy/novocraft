@@ -7,8 +7,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout (only theme)
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: novacraft-theme
+          sparse-checkout-cone-mode: false
 
       - name: Deploy theme via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

@@ -558,6 +558,61 @@ function nc_fix_front_page_content($content) {
         $content
     );
 
+    // Hero-banner benefits (3 items, by label text).
+    $bench_map = array(
+        'Гарантия' => '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>',
+        'Сроки'    => '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+        'Точно'    => '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3zM3 11h18v4H3zM3 19h12v2H3z"/></svg>',
+    );
+    $content = preg_replace_callback(
+        '#(<div class="hero-banner__benefit-icon">)\s*(</div>)\s*(<div class="hero-banner__benefit-text">\s*<strong>)([^<]+)(</strong>)#us',
+        function($m) use ($bench_map) {
+            $svg = '';
+            foreach ($bench_map as $k => $v) { if (mb_stripos($m[4], $k) !== false) { $svg = $v; break; } }
+            return $m[1] . $svg . $m[2] . $m[3] . $m[4] . $m[5];
+        },
+        $content
+    );
+
+    // Advantage cards (4 items, by title text).
+    $adv_map = array(
+        'Собственное' => '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V9l6-4 6 4v11"/><path d="M14 20V12l6-3v11"/><path d="M2 20h20"/><path d="M6 20v-5"/><path d="M10 20v-5"/><path d="M17 20v-4"/></svg>',
+        'Выезд'       => '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 15.3L8.7 2.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l12.6 12.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4z"/><path d="M7 7l2 2"/><path d="M10 10l2 2"/><path d="M13 13l2 2"/><path d="M16 16l2 2"/></svg>',
+        'Сроки'       => '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+        'Гарантия'    => '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>',
+    );
+    $content = preg_replace_callback(
+        '#(<div class="advantage-card__icon"[^>]*>)\s*(</div>)\s*(<div>\s*<div class="advantage-card__title">)([^<]+)(</div>)#us',
+        function($m) use ($adv_map) {
+            $svg = '';
+            foreach ($adv_map as $k => $v) { if (mb_stripos($m[4], $k) !== false) { $svg = $v; break; } }
+            return $m[1] . $svg . $m[2] . $m[3] . $m[4] . $m[5];
+        },
+        $content
+    );
+
+    // Category icon row (9 items, by label).
+    $cat_map = array(
+        'Кухни'       => '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7a3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V2"/><path d="M6 12v10"/><path d="M18 2c-2 0-3 2-3 5s1 5 3 5v10"/></svg>',
+        'Шкафы'       => '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="1"/><line x1="12" y1="2" x2="12" y2="22"/><circle cx="10" cy="12" r="0.5" fill="currentColor"/><circle cx="14" cy="12" r="0.5" fill="currentColor"/></svg>',
+        'Гардеробные' => '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a2 2 0 1 0 2 2"/><path d="M12 5v4"/><path d="M3 21l9-12 9 12z"/></svg>',
+        'Кровати'     => '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10V7a1 1 0 0 1 1-1h7v4"/><path d="M2 12h20v6"/><path d="M22 12v-2a2 2 0 0 0-2-2h-10"/><path d="M2 18v3"/><path d="M22 18v3"/></svg>',
+        'Комоды'      => '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><circle cx="10" cy="6" r="0.5" fill="currentColor"/><circle cx="14" cy="6" r="0.5" fill="currentColor"/><circle cx="10" cy="12" r="0.5" fill="currentColor"/><circle cx="14" cy="12" r="0.5" fill="currentColor"/><circle cx="10" cy="18" r="0.5" fill="currentColor"/><circle cx="14" cy="18" r="0.5" fill="currentColor"/></svg>',
+        'Обувницы'    => '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17c0-2 2-3 5-3s3-3 6-3 5 2 5 5v2H4z"/><path d="M4 19h16"/></svg>',
+        'Тумбы'       => '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="12" rx="1"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="7" y1="19" x2="7" y2="21"/><line x1="17" y1="19" x2="17" y2="21"/></svg>',
+        'Стеллажи'    => '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="0.5"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>',
+        'Столы'       => '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="9" x2="22" y2="9"/><line x1="5" y1="9" x2="5" y2="20"/><line x1="19" y1="9" x2="19" y2="20"/></svg>',
+    );
+    $content = preg_replace_callback(
+        '#(<div class="cat-icon-item__icon">)\s*(</div>)\s*(<span>)([^<]+)(</span>)#us',
+        function($m) use ($cat_map) {
+            $label = trim($m[4]);
+            $svg = isset($cat_map[$label]) ? $cat_map[$label] : '';
+            return $m[1] . $svg . $m[2] . $m[3] . $m[4] . $m[5];
+        },
+        $content
+    );
+
     // Hours — prepend clock icon if wrapper present without svg.
     $clock_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
     $content = preg_replace(

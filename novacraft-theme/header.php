@@ -10,7 +10,9 @@
   <meta name="keywords"
     content="мебель на заказ, кухня на заказ, шкаф-купе, гардеробная, мебель Москва, мебель Нижний Новгород">
   
-  <link rel="icon" type="image/png" href="img/Logo.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="<?php echo esc_url(get_template_directory_uri() . '/img/Logo.png'); ?>" sizes="32x32">
+  <link rel="shortcut icon" type="image/png" href="<?php echo esc_url(get_template_directory_uri() . '/img/Logo.png'); ?>">
+  <link rel="apple-touch-icon" href="<?php echo esc_url(get_template_directory_uri() . '/img/Logo.png'); ?>">
 <?php wp_head(); ?>
 </head>
 

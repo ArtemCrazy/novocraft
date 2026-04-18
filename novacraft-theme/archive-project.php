@@ -1,15 +1,6 @@
 <?php
 get_header(); ?>
 <main id="primary" class="site-main">
-<?php
-    $archive_page = get_page_by_title('Реализованные проекты');
-    if (!$archive_page) $archive_page = get_page_by_path('project');
-    if (!$archive_page) $archive_page = get_page_by_title('Проекты');
-
-    if ($archive_page && trim($archive_page->post_content) !== '') {
-        echo apply_filters('the_content', $archive_page->post_content);
-    } else {
-?>
 
 
   <!-- ============ PROJECTS PAGE ============ -->
@@ -205,7 +196,6 @@ foreach($projects as $p):
     </div>
   </section>
 
-<?php } ?>
 </main>
   <!-- ============ FOOTER ============ -->
   

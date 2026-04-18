@@ -655,7 +655,8 @@ function nc_fix_front_page_content($content) {
 
     return $content;
 }
-add_filter('the_content', 'nc_fix_front_page_content', 20);
+// Filter disabled — front-page.php now renders sections directly.
+// add_filter('the_content', 'nc_fix_front_page_content', 20);
 
 // Whitelist svg/form/input/select tags for future post saves so Gutenberg
 // doesn't strip them again. Applies to logged-in editors only.

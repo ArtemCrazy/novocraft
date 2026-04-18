@@ -3,6 +3,44 @@
  * Novacraft functions and definitions
  */
 
+// One-time cleanup for post/term slugs corrupted by wpdb placeholder-escape leak.
+// Corrupt slugs look like {<64-hex-hash>}d1{<hash>}82{<hash>}... — produced when
+// Cyrillic (URL-encoded with %) slugs passed through a buggy prepare/escape cycle.
+// Rewrites to clean Latin transliteration. Remove this block after one successful run.
+add_action('init', function() {
+    if (get_option('nc_slug_fix_v1_done')) return;
+    global $wpdb;
+
+    $cyr = [
+        'а'=>'a','б'=>'b','в'=>'v','г'=>'g','д'=>'d','е'=>'e','ё'=>'yo','ж'=>'zh',
+        'з'=>'z','и'=>'i','й'=>'y','к'=>'k','л'=>'l','м'=>'m','н'=>'n','о'=>'o',
+        'п'=>'p','р'=>'r','с'=>'s','т'=>'t','у'=>'u','ф'=>'f','х'=>'h','ц'=>'c',
+        'ч'=>'ch','ш'=>'sh','щ'=>'sch','ъ'=>'','ы'=>'y','ь'=>'','э'=>'e','ю'=>'yu','я'=>'ya',
+    ];
+    $translit = function($s) use ($cyr) { return strtr(mb_strtolower($s, 'UTF-8'), $cyr); };
+
+    $posts = $wpdb->get_results("SELECT ID, post_title, post_type, post_status FROM {$wpdb->posts} WHERE post_name REGEXP '^\\\\{[a-f0-9]{40,}'");
+    foreach ($posts as $p) {
+        $base = sanitize_title($translit($p->post_title));
+        if (!$base) $base = $p->post_type . '-' . $p->ID;
+        $slug = wp_unique_post_slug($base, $p->ID, $p->post_status, $p->post_type, 0);
+        $wpdb->update($wpdb->posts, ['post_name' => $slug], ['ID' => $p->ID]);
+    }
+
+    $terms = $wpdb->get_results("SELECT t.term_id, t.name, tt.taxonomy, tt.parent FROM {$wpdb->terms} t JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = t.term_id WHERE t.slug REGEXP '^\\\\{[a-f0-9]{40,}'");
+    foreach ($terms as $t) {
+        $base = sanitize_title($translit($t->name));
+        if (!$base) $base = 'term-' . $t->term_id;
+        $term_obj = (object) ['taxonomy' => $t->taxonomy, 'parent' => (int) $t->parent];
+        $slug = wp_unique_term_slug($base, $term_obj);
+        $wpdb->update($wpdb->terms, ['slug' => $slug], ['term_id' => $t->term_id]);
+    }
+
+    update_option('nc_slug_fix_v1_done', 1);
+    flush_rewrite_rules(false);
+}, 20);
+
+
 // 1. Theme Setup
 function novacraft_setup() {
     add_theme_support('title-tag');

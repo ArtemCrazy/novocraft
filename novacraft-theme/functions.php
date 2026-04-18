@@ -104,12 +104,9 @@ function novacraft_enqueue_scripts() {
         'nonce' => wp_create_nonce('nc_lead'),
     ));
     
-    // catalog.js is a legacy static-prototype script — NOT loaded on WP furniture archive
-    // (archive-furniture.php has its own inline filter; catalog.js would wipe WP cards with mock data)
-    // Check if on single product
-    if (is_singular('furniture')) {
-        wp_enqueue_script('novacraft-product', get_template_directory_uri() . '/product.js', array(), '1.0', true);
-    }
+    // product.js / catalog.js are legacy static-prototype scripts — NOT loaded on WP.
+    // product.js redirected to catalog.html when window.mockProducts was missing,
+    // breaking the single-furniture page. WP renders the page server-side, no JS needed.
     // Favourites — на всех страницах сайта
     $fav_ver = filemtime(get_stylesheet_directory() . '/js/fav.js');
     wp_enqueue_script('novacraft-fav', get_template_directory_uri() . '/js/fav.js', array(), $fav_ver, true);

@@ -495,6 +495,138 @@ function novacraft_contacts() {
     return $cache;
 }
 
+// ====== FRONT-PAGE CONTENT REPAIR ======
+// The home page post_content was wiped of <svg>, <input>, <select>, <form>
+// tags by a prior wp_kses pass (capability regression during migration).
+// Re-inject icons into empty wrappers and rebuild the broken contact form
+// on render, without touching the DB — leaves editable text intact.
+function nc_fix_front_page_content($content) {
+    if (!is_front_page()) return $content;
+
+    // Icons used by the "How we work" steps (5 items, by order).
+    $hww_icons = array(
+        // 01 - заявка / звонок
+        '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+        // 02 - замер / линейка
+        '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 15.3L8.7 2.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l12.6 12.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4z"/><path d="M7 7l2 2"/><path d="M10 10l2 2"/><path d="M13 13l2 2"/><path d="M16 16l2 2"/></svg>',
+        // 03 - договор / документ
+        '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>',
+        // 04 - производство / инструмент
+        '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+        // 05 - доставка / грузовик
+        '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+    );
+
+    // Fill empty .hww__icon-wrap divs in order.
+    $i = 0;
+    $content = preg_replace_callback(
+        '#(<div class="hww__icon-wrap">)\s*(</div>)#u',
+        function($m) use ($hww_icons, &$i) {
+            $icon = isset($hww_icons[$i]) ? $hww_icons[$i] : $hww_icons[0];
+            $i++;
+            return $m[1] . $icon . $m[2];
+        },
+        $content
+    );
+
+    // About features — prepend a checkmark icon (4 items, same SVG).
+    $check = '<svg class="about__feature-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    $content = preg_replace(
+        '#(<div class="about__feature">)\s*#u',
+        '$1' . $check . ' ',
+        $content
+    );
+
+    // Contact cards — match by link/class context.
+    $phone_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+    $tg_svg    = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+    $pin_svg   = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+
+    $content = preg_replace(
+        '#(<a[^>]*href="tel:[^"]*"[^>]*>\s*<div class="contact__card-icon">)\s*(</div>)#u',
+        '$1' . $phone_svg . '$2',
+        $content
+    );
+    $content = preg_replace(
+        '#(<a[^>]*href="https?://t\.me/[^"]*"[^>]*>\s*<div class="contact__card-icon">)\s*(</div>)#u',
+        '$1' . $tg_svg . '$2',
+        $content
+    );
+    $content = preg_replace(
+        '#(<div class="contact__card contact__card--addr">\s*<div class="contact__card-icon">)\s*(</div>)#u',
+        '$1' . $pin_svg . '$2',
+        $content
+    );
+
+    // Hours — prepend clock icon if wrapper present without svg.
+    $clock_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+    $content = preg_replace(
+        '#(<div class="contact__hours">)(\s*[^<])#u',
+        '$1' . $clock_svg . ' $2',
+        $content
+    );
+
+    // Rebuild the contact form if its inputs were stripped.
+    if (strpos($content, 'contact__form-wrapper') !== false &&
+        (strpos($content, 'id="contactName"') === false || strpos($content, '<select') === false)) {
+        $form_html = '<form id="contactForm" onsubmit="handleSubmit(event)">'
+            . '<div class="form-row">'
+            . '<div class="form-group"><label for="contactName">Имя *</label><input type="text" id="contactName" name="name" placeholder="Антон" required></div>'
+            . '<div class="form-group"><label for="contactPhone">Телефон *</label><input type="tel" id="contactPhone" name="phone" placeholder="+7 (___) ___-__-__" required></div>'
+            . '</div>'
+            . '<div class="form-group"><label for="contactService">Что вас интересует?</label>'
+            . '<select id="contactService" name="service">'
+            . '<option value="">Выберите услугу</option>'
+            . '<option value="kitchen">Кухня на заказ</option>'
+            . '<option value="wardrobe">Шкаф / Шкаф-купе</option>'
+            . '<option value="closet">Гардеробная</option>'
+            . '<option value="storage">Системы хранения</option>'
+            . '<option value="tvunit">Стенка под телевизор</option>'
+            . '<option value="other">Другое</option>'
+            . '</select></div>'
+            . '<div class="form-group"><label for="contactMessage">Комментарий</label>'
+            . '<textarea id="contactMessage" name="message" placeholder="Опишите ваш проект — размеры, материалы, пожелания..."></textarea></div>'
+            . '<div class="form-consent"><input type="checkbox" id="contactConsent" required>'
+            . '<label for="contactConsent">Нажимая кнопку, вы соглашаетесь на обработку персональных данных</label></div>'
+            . '<button type="submit" class="btn btn--primary btn--lg" style="width:100%;margin-top:var(--space-md)">Отправить заявку</button>'
+            . '</form>';
+        $content = preg_replace(
+            '#(<div class="contact__form-wrapper">\s*<h3 class="contact__form-title">[^<]*</h3>\s*<p class="contact__form-subtitle">[^<]*</p>)(.*?)(</div>\s*</div>\s*</div>\s*</div>\s*</div>\s*</div>)#us',
+            '$1' . $form_html . '$3',
+            $content,
+            1
+        );
+    }
+
+    return $content;
+}
+add_filter('the_content', 'nc_fix_front_page_content', 20);
+
+// Whitelist svg/form/input/select tags for future post saves so Gutenberg
+// doesn't strip them again. Applies to logged-in editors only.
+add_filter('wp_kses_allowed_html', function($tags, $context) {
+    if ($context !== 'post') return $tags;
+    $extra = array(
+        'svg'      => array('xmlns' => true, 'viewbox' => true, 'width' => true, 'height' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true, 'class' => true, 'aria-hidden' => true),
+        'path'     => array('d' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true),
+        'circle'   => array('cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true),
+        'rect'     => array('x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true, 'fill' => true, 'stroke' => true),
+        'line'     => array('x1' => true, 'y1' => true, 'x2' => true, 'y2' => true, 'stroke' => true),
+        'polyline' => array('points' => true, 'fill' => true, 'stroke' => true),
+        'polygon'  => array('points' => true, 'fill' => true, 'stroke' => true),
+        'g'        => array('fill' => true, 'stroke' => true, 'transform' => true),
+        'form'     => array('id' => true, 'class' => true, 'action' => true, 'method' => true, 'onsubmit' => true),
+        'input'    => array('type' => true, 'id' => true, 'name' => true, 'value' => true, 'placeholder' => true, 'required' => true, 'class' => true, 'checked' => true),
+        'select'   => array('id' => true, 'name' => true, 'class' => true, 'required' => true),
+        'option'   => array('value' => true, 'selected' => true),
+        'textarea' => array('id' => true, 'name' => true, 'placeholder' => true, 'required' => true, 'class' => true, 'rows' => true, 'cols' => true),
+        'button'   => array('type' => true, 'class' => true, 'id' => true, 'onclick' => true, 'style' => true),
+        'label'    => array('for' => true, 'class' => true),
+    );
+    return array_merge($tags, $extra);
+}, 10, 2);
+
+
 // ====== LEAD FORM AJAX HANDLER ======
 function nc_submit_lead() {
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'nc_lead')) {

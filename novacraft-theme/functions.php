@@ -57,6 +57,10 @@ function novacraft_enqueue_scripts() {
     $theme_version = filemtime(get_stylesheet_directory() . '/style.css');
     wp_enqueue_style('novacraft-style', get_stylesheet_uri(), array(), $theme_version);
     wp_enqueue_script('novacraft-script', get_template_directory_uri() . '/script.js', array(), $theme_version, true);
+    wp_localize_script('novacraft-script', 'ncAjax', array(
+        'url'   => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('nc_lead'),
+    ));
     
     // catalog.js is a legacy static-prototype script — NOT loaded on WP furniture archive
     // (archive-furniture.php has its own inline filter; catalog.js would wipe WP cards with mock data)
@@ -449,6 +453,98 @@ function novacraft_contacts() {
     return $cache;
 }
 
+// ====== LEAD FORM AJAX HANDLER ======
+function nc_submit_lead() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'nc_lead')) {
+        wp_send_json_error(['msg' => 'Ошибка безопасности, перезагрузите страницу.'], 403);
+    }
+    // Honeypot — real users leave it empty.
+    if (!empty($_POST['website'])) {
+        wp_send_json_success(['msg' => 'ok']);
+    }
+    // Rate-limit: 1 submission / 20s per IP.
+    $ip = isset($_SERVER['REMOTE_ADDR']) ? preg_replace('/[^0-9a-f\.:]/i', '', $_SERVER['REMOTE_ADDR']) : 'unknown';
+    $rl_key = 'nc_lead_rl_' . md5($ip);
+    if (get_transient($rl_key)) {
+        wp_send_json_error(['msg' => 'Слишком часто. Подождите немного.'], 429);
+    }
+    set_transient($rl_key, 1, 20);
+
+    $name    = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
+    $phone   = sanitize_text_field(wp_unslash($_POST['phone'] ?? ''));
+    $service = sanitize_text_field(wp_unslash($_POST['service'] ?? ''));
+    $message = sanitize_textarea_field(wp_unslash($_POST['message'] ?? ''));
+    $source  = sanitize_text_field(wp_unslash($_POST['source'] ?? 'site'));
+    $page    = esc_url_raw(wp_unslash($_POST['page_url'] ?? ''));
+
+    if (!$name || !$phone) {
+        wp_send_json_error(['msg' => 'Заполните имя и телефон.'], 400);
+    }
+
+    $to = get_option('nc_lead_email');
+    if (!$to || !is_email($to)) $to = 'zakaz@novacraft-mebel.ru';
+
+    $site = parse_url(home_url(), PHP_URL_HOST);
+    $subject = 'Заявка с сайта: ' . $name . ' (' . $source . ')';
+    $body  = "Новая заявка с сайта novacraft-mebel.ru\n\n";
+    $body .= "Имя: {$name}\n";
+    $body .= "Телефон: {$phone}\n";
+    if ($service) $body .= "Услуга: {$service}\n";
+    if ($message) $body .= "Комментарий: {$message}\n";
+    $body .= "\nИсточник формы: {$source}\n";
+    if ($page) $body .= "Страница: {$page}\n";
+    $body .= "IP: {$ip}\n";
+    $body .= "Время: " . current_time('Y-m-d H:i:s') . "\n";
+
+    $headers = array(
+        'From: Novacraft <noreply@' . $site . '>',
+        'Reply-To: ' . $name . ' <noreply@' . $site . '>',
+        'Content-Type: text/plain; charset=UTF-8',
+    );
+
+    $mailed = wp_mail($to, $subject, $body, $headers);
+
+    // Telegram (optional — send if configured).
+    $tg_token = trim((string) get_option('nc_tg_bot_token'));
+    $tg_chat  = trim((string) get_option('nc_tg_chat_id'));
+    if ($tg_token && $tg_chat) {
+        $tg_text = "🔔 *Заявка с сайта*\n\n"
+            . "*Имя:* " . $name . "\n"
+            . "*Телефон:* " . $phone . "\n"
+            . ($service ? "*Услуга:* " . $service . "\n" : '')
+            . ($message ? "*Комментарий:* " . $message . "\n" : '')
+            . "\n_Источник:_ " . $source
+            . ($page ? "\n" . $page : '');
+        wp_remote_post('https://api.telegram.org/bot' . $tg_token . '/sendMessage', array(
+            'timeout' => 8,
+            'body'    => array(
+                'chat_id'    => $tg_chat,
+                'text'       => $tg_text,
+                'parse_mode' => 'Markdown',
+            ),
+        ));
+    }
+
+    // Log a lightweight audit entry.
+    $log = get_option('nc_lead_log', array());
+    if (!is_array($log)) $log = array();
+    array_unshift($log, array(
+        'time' => current_time('mysql'),
+        'name' => $name, 'phone' => $phone, 'service' => $service,
+        'source' => $source, 'mailed' => (bool) $mailed,
+    ));
+    if (count($log) > 50) $log = array_slice($log, 0, 50);
+    update_option('nc_lead_log', $log, false);
+
+    if (!$mailed) {
+        wp_send_json_error(['msg' => 'Не удалось отправить письмо. Свяжитесь по телефону.'], 500);
+    }
+    wp_send_json_success(['msg' => 'Заявка принята']);
+}
+add_action('wp_ajax_nc_submit_lead', 'nc_submit_lead');
+add_action('wp_ajax_nopriv_nc_submit_lead', 'nc_submit_lead');
+
+
 // ====== NATIVE THEME OPTIONS PAGE ======
 function nc_add_theme_menu_item() {
     add_menu_page('Настройки сайта', 'Настройки сайта', 'manage_options', 'nc-theme-options', 'nc_theme_settings_page', 'dashicons-admin-generic', 99);
@@ -486,7 +582,10 @@ function nc_display_theme_panel_fields() {
         'address_nn' => 'Полный адрес НН',
         'work_hours' => 'Время работы',
         'map_url_msk' => 'Ссылка виджета карты (Москва)',
-        'map_url_nn' => 'Ссылка виджета карты (НН)'
+        'map_url_nn' => 'Ссылка виджета карты (НН)',
+        'lead_email' => 'Email для заявок (по умолчанию zakaz@novacraft-mebel.ru)',
+        'tg_bot_token' => 'Telegram Bot Token (от @BotFather)',
+        'tg_chat_id' => 'Telegram Chat ID (куда слать заявки)'
     ];
 
     foreach($fields as $id => $label) {

@@ -274,22 +274,36 @@ function validateQuizStep() {
 function handleQuizSubmit(e) {
   e.preventDefault();
   const form = e.target;
-
   const btn = form.querySelector('button[type="submit"]');
   const originalText = btn.innerHTML;
-  btn.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    Заявка отправлена!
-  `;
-  btn.style.background = '#4A8C5C';
   btn.disabled = true;
+  btn.innerHTML = 'Отправляем...';
 
-  setTimeout(() => {
-    closeQuizModal();
-    btn.innerHTML = originalText;
-    btn.style.background = '';
+  if (typeof ncSendLead !== 'function') {
     btn.disabled = false;
-  }, 2000);
+    btn.innerHTML = originalText;
+    return;
+  }
+
+  ncSendLead(form, 'quiz').then(({ ok, msg }) => {
+    if (ok) {
+      btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Заявка отправлена!
+      `;
+      btn.style.background = '#4A8C5C';
+      setTimeout(() => {
+        closeQuizModal();
+        btn.innerHTML = originalText;
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 2000);
+    } else {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+      alert(msg || 'Не удалось отправить. Позвоните нам: +7 (916) 012-87-77');
+    }
+  });
 }
 
 // Update click out for both modals
@@ -342,49 +356,76 @@ function initPhoneMask() {
 }
 
 /* ---------- FORM SUBMISSION ---------- */
+async function ncSendLead(form, source) {
+  const data = new FormData(form);
+  data.append('action', 'nc_submit_lead');
+  if (window.ncAjax && window.ncAjax.nonce) data.append('nonce', window.ncAjax.nonce);
+  data.append('source', source || 'site');
+  data.append('page_url', window.location.href);
+  const url = (window.ncAjax && window.ncAjax.url) || '/wp-admin/admin-ajax.php';
+  const res = await fetch(url, { method: 'POST', body: data, credentials: 'same-origin' });
+  let json = null;
+  try { json = await res.json(); } catch (_) {}
+  return { ok: res.ok && json && json.success, msg: (json && json.data && json.data.msg) || '' };
+}
+
 function handleSubmit(e) {
   e.preventDefault();
   const form = e.target;
-  const formData = new FormData(form);
-
-  // Show success state
   const btn = form.querySelector('button[type="submit"]');
   const originalText = btn.innerHTML;
-  btn.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    Заявка отправлена!
-  `;
-  btn.style.background = '#4A8C5C';
   btn.disabled = true;
+  btn.innerHTML = 'Отправляем...';
 
-  setTimeout(() => {
-    btn.innerHTML = originalText;
-    btn.style.background = '';
-    btn.disabled = false;
-    form.reset();
-  }, 3000);
+  ncSendLead(form, form.dataset.source || 'contact').then(({ ok, msg }) => {
+    if (ok) {
+      btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Заявка отправлена!
+      `;
+      btn.style.background = '#4A8C5C';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = '';
+        btn.disabled = false;
+        form.reset();
+      }, 3000);
+    } else {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+      alert(msg || 'Не удалось отправить. Позвоните нам: +7 (916) 012-87-77');
+    }
+  });
 }
 
 function handleModalSubmit(e) {
   e.preventDefault();
   const form = e.target;
-
   const btn = form.querySelector('button[type="submit"]');
   const originalText = btn.innerHTML;
-  btn.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    Заявка отправлена!
-  `;
-  btn.style.background = '#4A8C5C';
   btn.disabled = true;
+  btn.innerHTML = 'Отправляем...';
 
-  setTimeout(() => {
-    closeModal();
-    btn.innerHTML = originalText;
-    btn.style.background = '';
-    btn.disabled = false;
-    form.reset();
-  }, 2000);
+  ncSendLead(form, 'modal').then(({ ok, msg }) => {
+    if (ok) {
+      btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Заявка отправлена!
+      `;
+      btn.style.background = '#4A8C5C';
+      setTimeout(() => {
+        closeModal();
+        btn.innerHTML = originalText;
+        btn.style.background = '';
+        btn.disabled = false;
+        form.reset();
+      }, 2000);
+    } else {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+      alert(msg || 'Не удалось отправить. Позвоните нам: +7 (916) 012-87-77');
+    }
+  });
 }
 
 function handleCalculationModalSubmit(e) {
@@ -392,16 +433,26 @@ function handleCalculationModalSubmit(e) {
   const form = e.target;
   const btn = form.querySelector('button[type="submit"]');
   const originalText = btn.innerHTML;
-  btn.innerHTML = 'Заявка отправлена!';
   btn.disabled = true;
-  setTimeout(() => {
-    closeCalculationModal();
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-    form.reset();
-    const fileInput = document.getElementById('calculationFileInput');
-    if (fileInput) fileInput.value = '';
-  }, 2000);
+  btn.innerHTML = 'Отправляем...';
+
+  ncSendLead(form, 'calculation').then(({ ok, msg }) => {
+    if (ok) {
+      btn.innerHTML = 'Заявка отправлена!';
+      setTimeout(() => {
+        closeCalculationModal();
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        form.reset();
+        const fileInput = document.getElementById('calculationFileInput');
+        if (fileInput) fileInput.value = '';
+      }, 2000);
+    } else {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+      alert(msg || 'Не удалось отправить. Позвоните нам: +7 (916) 012-87-77');
+    }
+  });
 }
 
 /* ---------- SMOOTH SCROLL for anchors ---------- */

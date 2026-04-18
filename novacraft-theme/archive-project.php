@@ -87,8 +87,8 @@ foreach($projects as $p):
   <section class="section section--alt section--before-footer" style="padding: var(--space-2xl) 0;">
     <div class="container" style="text-align:center;">
       <h2 style="font-size:1.6rem; font-weight:700; margin-bottom:10px;">Хотите такой же результат?</h2>
-      <p style="color:var(--color-text-soft); margin-bottom:var(--space-lg);">Оставьте заявку — замерщик приедет бесплатно в удобное время</p>
-      <button class="btn btn--primary btn--lg" onclick="openModal()">Бесплатный замер</button>
+      <p style="color:var(--color-text-soft); margin-bottom:var(--space-lg);">Оставьте заявку — обсудим проект и рассчитаем стоимость</p>
+      <button class="btn btn--primary btn--lg" onclick="openModal()">Рассчитать стоимость</button>
     </div>
   </section>
 

@@ -775,6 +775,50 @@ add_action('wp_ajax_nc_submit_lead', 'nc_submit_lead');
 add_action('wp_ajax_nopriv_nc_submit_lead', 'nc_submit_lead');
 
 
+// ====== TELEGRAM BOT AUTO-SETUP ======
+// One-time bootstrap: save the bot token provided by the client, then
+// auto-capture chat_id on the next /start the bot receives. Throttled
+// to one poll per 30s to avoid hammering Telegram.
+function nc_tg_bootstrap() {
+    // (a) One-time: seed the bot token if unset.
+    if (!get_option('nc_tg_v1_seeded')) {
+        if (!get_option('nc_tg_bot_token')) {
+            update_option('nc_tg_bot_token', '8396388983:AAF0UNyu8mnmUMCRudhgnGzBsvNKce5Adgw', false);
+        }
+        update_option('nc_tg_v1_seeded', 1, false);
+    }
+
+    // (b) If chat_id is still missing, poll getUpdates (throttled).
+    $token = trim((string) get_option('nc_tg_bot_token'));
+    $chat  = trim((string) get_option('nc_tg_chat_id'));
+    if (!$token || $chat) return;
+    if (get_transient('nc_tg_poll_lock')) return;
+    set_transient('nc_tg_poll_lock', 1, 30);
+
+    $resp = wp_remote_get('https://api.telegram.org/bot' . $token . '/getUpdates?limit=5', array('timeout' => 6));
+    if (is_wp_error($resp)) return;
+    $body = json_decode(wp_remote_retrieve_body($resp), true);
+    if (empty($body['ok']) || empty($body['result'])) return;
+
+    foreach ($body['result'] as $upd) {
+        $cid = $upd['message']['chat']['id'] ?? ($upd['channel_post']['chat']['id'] ?? null);
+        if ($cid) {
+            update_option('nc_tg_chat_id', (string) $cid, false);
+            // Greet the captured chat so the user sees it worked.
+            wp_remote_post('https://api.telegram.org/bot' . $token . '/sendMessage', array(
+                'timeout' => 6,
+                'body'    => array(
+                    'chat_id' => $cid,
+                    'text'    => 'Готово! Этот чат будет получать заявки с сайта novacraft-mebel.ru',
+                ),
+            ));
+            break;
+        }
+    }
+}
+add_action('init', 'nc_tg_bootstrap');
+
+
 // ====== NATIVE THEME OPTIONS PAGE ======
 function nc_add_theme_menu_item() {
     add_menu_page('Настройки сайта', 'Настройки сайта', 'manage_options', 'nc-theme-options', 'nc_theme_settings_page', 'dashicons-admin-generic', 99);
